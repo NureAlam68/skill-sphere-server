@@ -23,7 +23,8 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const db = client.db('skillDB')
-    const jobsCollection = db.collection('jobs')
+    const jobsCollection = db.collection('jobs');
+    const bidsCollection = db.collection('bids');
 
     // save a jobData in db
     app.post('/add-job', async (req, res) => {
@@ -73,6 +74,13 @@ async function run() {
         $set: jobData,
       }
       const result = await jobsCollection.updateOne(filter, updatedDoc, options)
+      res.send(result)
+    })
+
+    // save a bid Data in db
+    app.post('/add-bid', async (req, res) => {
+      const bidData = req.body
+      const result = await bidsCollection.insertOne(bidData)
       res.send(result)
     })
 
