@@ -63,6 +63,20 @@ async function run() {
       res.send(result);
     })
 
+     // update a job in db
+     app.put('/update-job/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const jobData = req.body
+      const options = { upsert: true }
+      const updatedDoc = {
+        $set: jobData,
+      }
+      const result = await jobsCollection.updateOne(filter, updatedDoc, options)
+      res.send(result)
+    })
+
+
     
 
     // Send a ping to confirm a successful connection
