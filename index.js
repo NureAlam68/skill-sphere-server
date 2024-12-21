@@ -77,7 +77,7 @@ async function run() {
       res.send(result)
     })
 
-    // save a bid Data in db
+    // save a bid Data in db and update bid count in jobs collection
     app.post('/add-bid', async (req, res) => {
       const bidData = req.body
       // 0. check if the job is already bid by the same user
@@ -128,6 +128,25 @@ async function run() {
       }
       const result = await bidsCollection.updateOne(filter, updated)
       res.send(result)
+    })
+
+    //get all job (search, filter, sort)
+    app.get('/all-jobs', async(req, res) => {
+      const filter = req.query.filter;
+      const search = req.query.search;
+      const sort = req.query.sort;
+      let options = {};
+      if(sort){
+        options = { sort: {deadline: sort === 'asc' ? 1 : -1} }
+      }
+      let query = {
+        title: { $regex: search, $options: 'i' }
+      };
+      if(filter){
+        query.category = filter;
+      }
+      const result = await jobsCollection.find(query, options).toArray();
+      res.send(result);
     })
 
     
