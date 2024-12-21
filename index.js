@@ -80,7 +80,25 @@ async function run() {
     // save a bid Data in db
     app.post('/add-bid', async (req, res) => {
       const bidData = req.body
+      // 0. check if the job is already bid by the same user
+      const query = { email: bidData.email, jobId: bidData.jobId }
+      const alreadyExist = await bidsCollection.findOne(query)
+      if(alreadyExist){
+        return res
+        .status(400)
+        .send('You have already bid on this job')
+      }
+
+
+      // 1. save data in bids collection
       const result = await bidsCollection.insertOne(bidData)
+
+      // 2. Increase bid count in jobs collection
+      const filter = { _id: new ObjectId(bidData.jobId) }
+      const update = { $inc: { bid_count: 1 } }
+      const updateBidCount = await jobsCollection.updateOne(filter, update)
+
+
       res.send(result)
     })
 
